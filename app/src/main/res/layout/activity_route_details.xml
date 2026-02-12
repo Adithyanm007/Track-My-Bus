@@ -18,7 +18,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="1109dp"
+            android:layout_height="715dp"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -48,14 +48,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Tracking status: OFF"
+                android:text="Tracking status: Simulated"
                 android:textColor="#666666"
                 android:textSize="14sp" />
 
             <org.osmdroid.views.MapView
                 android:id="@+id/osmMap"
                 android:layout_width="match_parent"
-                android:layout_height="976dp" />
+                android:layout_height="517dp" />
 
         </LinearLayout>
 

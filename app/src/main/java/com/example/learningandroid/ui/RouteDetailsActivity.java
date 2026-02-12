@@ -13,7 +13,7 @@ import android.os.Handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.activity.EdgeToEdge;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import com.example.learningandroid.R;
 
-import java.util.ArrayList;
 
 public class RouteDetailsActivity extends AppCompatActivity {
     private Marker busMarker;
@@ -68,6 +67,7 @@ public class RouteDetailsActivity extends AppCompatActivity {
 
         Drawable drawable = ContextCompat.getDrawable(this, R.drawable.bus);
 
+        assert drawable != null;
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
 
 // Resize (example: 100x100)
@@ -77,7 +77,7 @@ public class RouteDetailsActivity extends AppCompatActivity {
 
         busMarker.setIcon(scaledDrawable);
 
-        mapView.getOverlays().add(busMarker);
+
 
         routePoints.add(new GeoPoint(12.9141, 74.8560));
         routePoints.add(new GeoPoint(12.9150, 74.8570));
@@ -86,7 +86,7 @@ public class RouteDetailsActivity extends AppCompatActivity {
         routePoints.add(new GeoPoint(12.9180, 74.8600));
         busMarker.setPosition(routePoints.get(0));
 
-        handler.postDelayed(moveBusRunnable, 2000);
+
 
     }
     private void updateBusLocation(double lat, double lon) {
@@ -99,12 +99,12 @@ public class RouteDetailsActivity extends AppCompatActivity {
         @Override
         public void run() {
 
-            currentIndex++;
+
 
             currentIndex = (currentIndex + 1) % routePoints.size();
+            GeoPoint point = routePoints.get(currentIndex);
+            updateBusLocation(point.getLatitude(), point.getLongitude());
 
-            busMarker.setPosition(routePoints.get(currentIndex));
-            mapView.invalidate();
 
             handler.postDelayed(this, 2000);
         }
