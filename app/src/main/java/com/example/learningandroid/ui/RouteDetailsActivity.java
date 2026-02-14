@@ -2,6 +2,8 @@ package com.example.learningandroid.ui;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import com.google.firebase.database.DatabaseError;
+
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -9,9 +11,8 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.views.MapView;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
-import android.os.Handler;
-import java.util.ArrayList;
-import java.util.List;
+
+
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,13 +22,15 @@ import android.content.Intent;
 import android.widget.TextView;
 
 import com.example.learningandroid.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class RouteDetailsActivity extends AppCompatActivity {
     private Marker busMarker;
-    private List<GeoPoint> routePoints;
-    private int currentIndex = 0;
-    private Handler handler = new Handler();
+
 
     @SuppressLint("SetTextI18n")
 
@@ -38,7 +41,7 @@ public class RouteDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Configuration.getInstance().setUserAgentValue(getPackageName());
-        routePoints = new ArrayList<>();
+
 
         setContentView(R.layout.activity_route_details); // REQUIRED
         mapView = findViewById(R.id.osmMap);
@@ -77,14 +80,30 @@ public class RouteDetailsActivity extends AppCompatActivity {
 
         busMarker.setIcon(scaledDrawable);
 
+        DatabaseReference ref = FirebaseDatabase
+                .getInstance()
+                .getReference("routes")
+                .child(routeNumber)
+                .child("currentLocation");
 
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.exists()) {
 
-        routePoints.add(new GeoPoint(12.9141, 74.8560));
-        routePoints.add(new GeoPoint(12.9150, 74.8570));
-        routePoints.add(new GeoPoint(12.9160, 74.8580));
-        routePoints.add(new GeoPoint(12.9170, 74.8590));
-        routePoints.add(new GeoPoint(12.9180, 74.8600));
-        busMarker.setPosition(routePoints.get(0));
+                    Double lat = snapshot.child("lat").getValue(Double.class);
+                    Double lng = snapshot.child("lng").getValue(Double.class);
+
+                    if (lat != null && lng != null) {
+                        updateBusLocation(lat, lng);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {}
+        });
+
 
 
 
@@ -95,26 +114,13 @@ public class RouteDetailsActivity extends AppCompatActivity {
         mapView.getController().animateTo(newLocation);
         mapView.invalidate();
     }
-    private Runnable moveBusRunnable = new Runnable() {
-        @Override
-        public void run() {
 
-
-
-            currentIndex = (currentIndex + 1) % routePoints.size();
-            GeoPoint point = routePoints.get(currentIndex);
-            updateBusLocation(point.getLatitude(), point.getLongitude());
-
-
-            handler.postDelayed(this, 2000);
-        }
-    };
 
     @Override
     protected void onResume() {
         super.onResume();
         mapView.onResume();
-        handler.postDelayed(moveBusRunnable, 2000);
+
     }
 
 
@@ -122,7 +128,7 @@ public class RouteDetailsActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         mapView.onPause();
-        handler.removeCallbacks(moveBusRunnable);
+
     }
 
 
